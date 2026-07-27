@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: cibertec
+    
+  profiles:
+    default: dev
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    open-in-view: false
+
+    hibernate:
+      ddl-auto: validate
+
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
