@@ -26,6 +26,7 @@ CREATE TABLE usuario (
 
 CREATE TABLE trabajador (
     id_trabajador INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     dni CHAR(8) NOT NULL UNIQUE,
@@ -70,7 +71,46 @@ CREATE TABLE departamento_propietario (
     CONSTRAINT fk_dep_prop_usuario FOREIGN KEY (id_propietario) REFERENCES usuario(id_usuario)
 );
 
+CREATE TABLE cuota_mensual (
+    id_cuota_mensual INT AUTO_INCREMENT PRIMARY KEY,
+    id_departamento INT NOT NULL,
+    monto_base DECIMAL(10,2) NOT NULL,
+    monto_mora DECIMAL(10,2) DEFAULT 0,
+    monto_total DECIMAL(10,2) NOT NULL,
+    fecha_emision DATE NOT NULL,
+    fecha_vencimiento DATE NOT NULL,
+    estado ENUM('PENDIENTE','PAGADO','VENCIDO') DEFAULT 'PENDIENTE',
+    CONSTRAINT fk_cuota_departamento FOREIGN KEY (id_departamento) REFERENCES departamento(id_departamento)
+);
 
+CREATE TABLE pago_mantenimiento (
+    id_pago_mantenimiento INT AUTO_INCREMENT PRIMARY KEY,
+    id_cuota_mensual INT NOT NULL,
+    id_usuario INT NOT NULL,
+    metodo_pago VARCHAR(30) NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estado VARCHAR(20) NOT NULL DEFAULT 'REGISTRADO',
+    CONSTRAINT uk_pago_cuota UNIQUE (id_cuota_mensual),
+    CONSTRAINT fk_pago_cuota FOREIGN KEY (id_cuota_mensual) REFERENCES cuota_mensual(id_cuota_mensual),
+    CONSTRAINT fk_pago_usuario FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+    CONSTRAINT chk_pago_metodo_pago
+        CHECK (
+            metodo_pago IN (
+                'EFECTIVO',
+                'TRANSFERENCIA',
+                'YAPE',
+                'PLIN'
+            )
+        ),
+    CONSTRAINT chk_pago_estado
+        CHECK (
+            estado IN (
+                'REGISTRADO',
+                'ANULADO'
+            )
+        )
+);
 
 INSERT INTO rol(nombre_rol) VALUES
 ('ADMINISTRADOR'),
@@ -115,16 +155,29 @@ INSERT INTO departamento_propietario(id_departamento,id_propietario,fecha_adquis
 (3,3,'2025-03-15',TRUE),
 (4,3,'2025-04-20',TRUE);
 
-INSERT INTO reserva(id_usuario,fecha_reserva,hora_inicio,hora_fin,estado) VALUES
-(2,CURDATE() + INTERVAL 1 DAY,'10:00:00','12:00:00','APROBADA'),
-(4,CURDATE() + INTERVAL 1 DAY,'11:00:00','13:00:00','PENDIENTE'),
-(3,CURDATE() + INTERVAL 2 DAY,'18:00:00','21:00:00','PENDIENTE'),
-(5,CURDATE() + INTERVAL 3 DAY,'12:00:00','14:00:00','RECHAZADA');
+INSERT INTO cuota_mensual
+(id_departamento,monto_base,monto_mora,monto_total,fecha_emision,fecha_vencimiento,estado) VALUES
+(1,250.00,0.00,250.00,'2026-06-01','2026-06-15','PENDIENTE'),
+(2,250.00,20.00,270.00,'2026-06-01','2026-06-15','VENCIDO'),
+(3,300.00,0.00,300.00,'2026-06-01','2026-06-15','PAGADO'),
+(4,280.00,0.00,280.00,'2026-06-01','2026-06-15','PENDIENTE');
 
-
-
-
-
+INSERT INTO pago_mantenimiento
+(
+    id_cuota_mensual,
+    id_usuario,
+    metodo_pago,
+    monto,
+    estado
+)
+VALUES
+(
+    3,
+    3,
+    'TRANSFERENCIA',
+    300.00,
+    'REGISTRADO'
+);
 
 
 
