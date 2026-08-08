@@ -26,7 +26,6 @@ CREATE TABLE usuario (
 
 CREATE TABLE trabajador (
     id_trabajador INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
     dni CHAR(8) NOT NULL UNIQUE,
@@ -38,6 +37,7 @@ CREATE TABLE trabajador (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE reserva (
     id_reserva INT AUTO_INCREMENT PRIMARY KEY,
@@ -112,6 +112,31 @@ CREATE TABLE pago_mantenimiento (
         )
 );
 
+
+CREATE TABLE visitante (
+    id_visitante INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    dni VARCHAR(20) NOT NULL,
+    motivo VARCHAR(255)
+);
+
+CREATE TABLE registro_acceso (
+    id_registro INT AUTO_INCREMENT PRIMARY KEY,
+    id_visitante INT NOT NULL,
+    id_departamento INT NOT NULL,
+    id_trabajador INT NOT NULL,
+    fecha_hora_ingreso DATETIME NOT NULL,
+    fecha_hora_salida DATETIME NULL,
+    CONSTRAINT fk_registro_visitante FOREIGN KEY (id_visitante) REFERENCES visitante(id_visitante),
+    CONSTRAINT fk_registro_departamento FOREIGN KEY (id_departamento) REFERENCES departamento(id_departamento),
+    CONSTRAINT fk_registro_trabajador FOREIGN KEY (id_trabajador) REFERENCES trabajador(id_trabajador)
+);
+
+INSERT INTO trabajador(nombre,apellido,dni,telefono,correo,cargo,turno,estado) VALUES
+('Luis','Ramirez','73322111','944888777','vigilante@correo.com','VIGILANTE','NOCHE',TRUE);
+
+
 INSERT INTO rol(nombre_rol) VALUES
 ('ADMINISTRADOR'),
 ('PROPIETARIO'),
@@ -126,8 +151,7 @@ INSERT INTO usuario(id_rol,nombre,apellido,dni,telefono,correo,password_hash) VA
 (3,'Pedro','Castillo','70998877','944333222','pedro@correo.com','123456'),
 (4,'Luis','Ramirez','73322111','944888777','vigilante@correo.com','123456');
 
-INSERT INTO trabajador(id_usuario,cargo,turno,estado) VALUES
-(6,'VIGILANTE','NOCHE',TRUE);
+
 
 INSERT INTO reserva(id_usuario,fecha_reserva,hora_inicio,hora_fin,estado) VALUES
 (2,CURDATE() + INTERVAL 1 DAY,'10:00:00','12:00:00','APROBADA'),
@@ -178,9 +202,3 @@ VALUES
     300.00,
     'REGISTRADO'
 );
-
-
-
-
-
-
