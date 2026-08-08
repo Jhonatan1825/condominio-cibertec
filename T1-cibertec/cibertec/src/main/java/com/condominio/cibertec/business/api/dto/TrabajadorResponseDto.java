@@ -3,7 +3,6 @@ package com.condominio.cibertec.business.api.dto;
 import java.time.LocalDateTime;
 
 public record TrabajadorResponseDto(
-
         Integer idTrabajador,
         String nombre,
         String apellido,

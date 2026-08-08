@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Trabajador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+<h2>Editar trabajador</h2>
+
+<form th:action="@{/vista/trabajadores/editar/{id}(id=${trabajador.idTrabajador})}" method="post">
+
+    <div class="mb-3">
+        <label>Nombre</label>
+        <input type="text" name="nombre" th:value="${trabajador.nombre}" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Apellido</label>
+        <input type="text" name="apellido" th:value="${trabajador.apellido}" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>DNI</label>
+        <input type="text" name="dni" th:value="${trabajador.dni}" class="form-control" pattern="\d{8}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Teléfono</label>
+        <input type="text" name="telefono" th:value="${trabajador.telefono}" class="form-control" pattern="9\d{8}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Correo</label>
+        <input type="email" name="correo" th:value="${trabajador.correo}" class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label>Cargo</label>
+        <input type="text" name="cargo" th:value="${trabajador.cargo}" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Turno</label>
+        <input type="text" name="turno" th:value="${trabajador.turno}" class="form-control" required>
+    </div>
+
+    <button type="submit" class="btn btn-success">Actualizar</button>
+    <a th:href="@{/vista/trabajadores}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+</body>
+</html>
