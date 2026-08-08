@@ -18,6 +18,7 @@ public record TrabajadorRequestDto(
         @Pattern(regexp = "^\\d{8}$", message = "El DNI debe tener exactamente 8 dígitos")
         String dni,
 
+        @NotBlank(message = "El teléfono es obligatorio")
         @Pattern(regexp = "^9\\d{8}$", message = "El teléfono debe tener 9 dígitos y comenzar con 9")
         String telefono,
 

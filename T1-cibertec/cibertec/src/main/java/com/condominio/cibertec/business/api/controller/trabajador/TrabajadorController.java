@@ -1,4 +1,4 @@
-package com.condominio.cibertec.business.api.controller;
+package com.condominio.cibertec.business.api.controller.trabajador;
 
 import com.condominio.cibertec.business.api.dto.TrabajadorRequestDto;
 import com.condominio.cibertec.business.api.dto.TrabajadorResponseDto;
