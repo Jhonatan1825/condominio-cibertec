@@ -13,7 +13,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     Optional<Usuario> findByCorreo(String correo);
     Optional<Usuario> findByDni(String dni);
-
+    Optional<Usuario> findByCorreoIgnoreCase(String correo);
+    boolean existsByCorreoIgnoreCase(String correo);
     boolean existsByCorreo(String correo);
     boolean existsByDni(String dni);
     boolean existsByCorreoAndIdUsuarioNot(

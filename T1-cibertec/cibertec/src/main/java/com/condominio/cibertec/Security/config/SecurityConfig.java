@@ -4,7 +4,6 @@ import com.condominio.cibertec.Security.domain.service.CustomUserDetailsService;
 import com.condominio.cibertec.Security.domain.service.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,25 +18,20 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
-    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
-    private final JwtAccessDeniedHandler accessDeniedHandler;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomUserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder,
-            JwtAuthenticationEntryPoint authenticationEntryPoint,
-            JwtAccessDeniedHandler accessDeniedHandler
+            PasswordEncoder passwordEncoder
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationEntryPoint = authenticationEntryPoint;
-        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
+
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(userDetailsService);
 
@@ -60,49 +54,15 @@ public class SecurityConfig {
                         )
                 )
 
-                .exceptionHandling(exceptions ->
-                        exceptions
-                                .authenticationEntryPoint(authenticationEntryPoint)
-                                .accessDeniedHandler(accessDeniedHandler)
-                )
-
                 .authorizeHttpRequests(auth ->
                         auth
-                                // Auth público (login / registro)
-                                .requestMatchers("/api/v1/auth/**")
+                                // =================================
+                                // VISTA TRABAJADORES
+                                // libre para todoosss
+                                // =================================
+                                .requestMatchers("/vista/trabajadores/**")
                                 .permitAll()
 
-                                // Usuarios: solo administrador gestiona (crear, editar, eliminar, listar)
-                                .requestMatchers("/api/v1/usuarios/**")
-                                .hasRole("ADMINISTRADOR")
-
-                                // Trabajadores: lectura para cualquier usuario logueado (ver quién está de turno)
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/trabajadores/**"
-                                )
-                                .authenticated()
-
-                                // Trabajadores: crear/editar/eliminar solo administrador
-                                .requestMatchers("/api/trabajadores/**")
-                                .hasRole("ADMINISTRADOR")
-
-                                // Cuotas: lectura para propietarios/inquilinos, escritura solo admin
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/v1/cuotas/**"
-                                )
-                                .hasAnyRole("ADMINISTRADOR", "PROPIETARIO", "INQUILINO")
-
-                                .requestMatchers("/api/v1/cuotas/**")
-                                .hasRole("ADMINISTRADOR")
-
-                                // Pagos de mantenimiento: cualquier usuario logueado
-                                .requestMatchers("/api/v1/pagos-mantenimiento/**")
-                                .hasAnyRole("ADMINISTRADOR", "PROPIETARIO", "INQUILINO")
-
-                                .requestMatchers("/error")
-                                .permitAll()
 
                                 .anyRequest()
                                 .authenticated()

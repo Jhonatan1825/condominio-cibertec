@@ -59,11 +59,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RecursoDuplicadoException("El correo ya está registrado");
         }
 
-        Rol rolPorDefecto = rolRepository
-                .findByNombreRol(ROL_POR_DEFECTO)
-                .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No se encontró el rol " + ROL_POR_DEFECTO
-                ));
+
 
         Usuario usuario = new Usuario();
         usuario.setCorreo(correo);
@@ -72,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
         usuario.setApellido(requestDto.apellido().trim());
         usuario.setDni(requestDto.dni().trim());
         usuario.setTelefono(requestDto.telefono());
-        usuario.setRol(rolPorDefecto);
+
         usuario.setEstado(true);
         usuario.setCreatedAt(LocalDateTime.now());
         usuario.setUpdatedAt(LocalDateTime.now());
