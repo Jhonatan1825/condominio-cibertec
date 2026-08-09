@@ -56,13 +56,30 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth ->
                         auth
-                                // =================================
-                                // VISTA TRABAJADORES
-                                // libre para todoosss
-                                // =================================
+
+
+                                .requestMatchers("/api/v1/auth/**")
+                                .permitAll()
+                                // LOGIN - público
+
+                                .requestMatchers("/api/visitantes/**")
+                                .permitAll()
+                                .requestMatchers("/login")
+                                .permitAll()
+
+                                .requestMatchers("/api/trabajadores/**")
+                                .permitAll()
+
                                 .requestMatchers("/vista/trabajadores/**")
                                 .permitAll()
 
+                                .requestMatchers(
+                                        "/css/**",
+                                        "/js/**",
+                                        "/images/**",
+                                        "/favicon.ico"
+                                )
+                                .permitAll()
 
                                 .anyRequest()
                                 .authenticated()
