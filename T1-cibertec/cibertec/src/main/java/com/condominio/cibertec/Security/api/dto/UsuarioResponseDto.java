@@ -1,20 +1,26 @@
 package com.condominio.cibertec.Security.api.dto;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 public record UsuarioResponseDto(
 
-        Integer id,
+        Integer idUsuario,
 
         String correo,
 
         String nombre,
 
-        boolean activo,
+        String apellido,
 
-        LocalDateTime fechaCreacion,
+        String dni,
 
-        Set<String> roles
+        String telefono,
+
+        Boolean estado,
+
+        LocalDateTime createdAt,
+
+        String rol
+
 ) {
 }

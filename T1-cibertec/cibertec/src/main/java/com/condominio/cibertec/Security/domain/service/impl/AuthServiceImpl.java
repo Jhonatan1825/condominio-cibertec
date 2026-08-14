@@ -12,6 +12,7 @@ import com.condominio.cibertec.business.data.entity.Rol;
 import com.condominio.cibertec.business.data.entity.Usuario;
 import com.condominio.cibertec.business.data.repository.RolRepository;
 import com.condominio.cibertec.business.data.repository.UsuarioRepository;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,8 +28,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class AuthServiceImpl implements AuthService {
-
-    private static final String ROL_POR_DEFECTO = "INQUILINO";
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
@@ -56,24 +55,38 @@ public class AuthServiceImpl implements AuthService {
         String correo = normalizarCorreo(requestDto.correo());
 
         if (usuarioRepository.existsByCorreoIgnoreCase(correo)) {
-            throw new RecursoDuplicadoException("El correo ya está registrado");
+            throw new RecursoDuplicadoException(
+                    "El correo ya está registrado"
+            );
         }
 
-
+        Rol rol = rolRepository
+                .findByNombreRol(requestDto.rol().trim().toUpperCase())
+                .orElseThrow(() ->
+                        new RecursoNoEncontradoException("El rol no existe")
+                );
 
         Usuario usuario = new Usuario();
+
         usuario.setCorreo(correo);
-        usuario.setPasswordHash(passwordEncoder.encode(requestDto.password()));
+
+        usuario.setPasswordHash(
+                passwordEncoder.encode(requestDto.password())
+        );
+
         usuario.setNombre(requestDto.nombre().trim());
         usuario.setApellido(requestDto.apellido().trim());
         usuario.setDni(requestDto.dni().trim());
         usuario.setTelefono(requestDto.telefono());
 
+        usuario.setRol(rol);
+
         usuario.setEstado(true);
         usuario.setCreatedAt(LocalDateTime.now());
         usuario.setUpdatedAt(LocalDateTime.now());
 
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+        Usuario usuarioGuardado =
+                usuarioRepository.save(usuario);
 
         return convertirAResponse(usuarioGuardado);
     }
@@ -82,21 +95,28 @@ public class AuthServiceImpl implements AuthService {
     @Transactional(readOnly = true)
     public LoginResponseDto login(LoginRequestDto requestDto) {
 
-        String correo = normalizarCorreo(requestDto.correo());
+        String correo =
+                normalizarCorreo(requestDto.correo());
 
         UsernamePasswordAuthenticationToken solicitud =
-                new UsernamePasswordAuthenticationToken(correo, requestDto.password());
+                new UsernamePasswordAuthenticationToken(
+                        correo,
+                        requestDto.password()
+                );
 
-        UserDetails userDetails = (UserDetails) authenticationManager
-                .authenticate(solicitud)
-                .getPrincipal();
+        UserDetails userDetails =
+                (UserDetails) authenticationManager
+                        .authenticate(solicitud)
+                        .getPrincipal();
 
-        String token = jwtService.generarToken(userDetails);
+        String token =
+                jwtService.generarToken(userDetails);
 
-        Set<String> roles = userDetails.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
+        Set<String> roles =
+                userDetails.getAuthorities()
+                        .stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toSet());
 
         return new LoginResponseDto(
                 token,
@@ -111,16 +131,20 @@ public class AuthServiceImpl implements AuthService {
         return correo.trim().toLowerCase();
     }
 
-    private UsuarioResponseDto convertirAResponse(Usuario usuario) {
-        Set<String> roles = Set.of("ROLE_" + usuario.getRol().getNombreRol());
+    private UsuarioResponseDto convertirAResponse(
+            Usuario usuario
+    ) {
 
         return new UsuarioResponseDto(
                 usuario.getIdUsuario(),
                 usuario.getCorreo(),
                 usuario.getNombre(),
-                Boolean.TRUE.equals(usuario.getEstado()),
+                usuario.getApellido(),
+                usuario.getDni(),
+                usuario.getTelefono(),
+                usuario.getEstado(),
                 usuario.getCreatedAt(),
-                roles
+                usuario.getRol().getNombreRol()
         );
     }
 }

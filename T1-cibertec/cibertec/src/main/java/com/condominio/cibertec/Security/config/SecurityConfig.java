@@ -16,17 +16,23 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomUserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            JwtAccessDeniedHandler jwtAccessDeniedHandler
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
     }
 
     @Bean
@@ -54,35 +60,74 @@ public class SecurityConfig {
                         )
                 )
 
-                .authorizeHttpRequests(auth ->
-                        auth
+                .authorizeHttpRequests(auth -> auth
 
+                        // LOGIN Y REGISTRO
+                        .requestMatchers("/api/v1/auth/**")
+                        .permitAll()
 
-                                .requestMatchers("/api/v1/auth/**")
-                                .permitAll()
-                                // LOGIN - público
+                        // RECURSOS ESTÁTICOS
+                        .requestMatchers(
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico"
+                        )
+                        .permitAll()
 
-                                .requestMatchers("/api/visitantes/**")
-                                .permitAll()
-                                .requestMatchers("/login")
-                                .permitAll()
+                        // ADMINISTRADOR
+                        .requestMatchers("/api/usuarios/**")
+                        .hasRole("ADMINISTRADOR")
 
-                                .requestMatchers("/api/trabajadores/**")
-                                .permitAll()
+                        .requestMatchers("/api/trabajadores/**")
+                        .hasRole("ADMINISTRADOR")
 
-                                .requestMatchers("/vista/trabajadores/**")
-                                .permitAll()
+                        .requestMatchers("/api/departamentos/**")
+                        .hasRole("ADMINISTRADOR")
 
-                                .requestMatchers(
-                                        "/css/**",
-                                        "/js/**",
-                                        "/images/**",
-                                        "/favicon.ico"
-                                )
-                                .permitAll()
+                        // CUOTAS
+                        .requestMatchers("/api/cuotas/**")
+                        .hasAnyRole(
+                                "ADMINISTRADOR",
+                                "PROPIETARIO"
+                        )
 
-                                .anyRequest()
-                                .authenticated()
+                        // PAGOS
+                        .requestMatchers("/api/pagos/**")
+                        .hasAnyRole(
+                                "ADMINISTRADOR",
+                                "PROPIETARIO"
+                        )
+
+                        // RESERVAS
+                        .requestMatchers("/api/reservas/**")
+                        .hasAnyRole(
+                                "ADMINISTRADOR",
+                                "PROPIETARIO",
+                                "INQUILINO"
+                        )
+
+                        // VISITANTES
+                        .requestMatchers("/api/visitantes/**")
+                        .hasAnyRole(
+                                "ADMINISTRADOR",
+                                "VIGILANTE"
+                        )
+
+                        // REGISTRO DE ACCESO
+                        .requestMatchers("/api/registros-acceso/**")
+                        .hasAnyRole(
+                                "ADMINISTRADOR",
+                                "VIGILANTE"
+                        )
+
+                        .anyRequest()
+                        .authenticated()
+                )
+
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
 
                 .authenticationProvider(authenticationProvider())

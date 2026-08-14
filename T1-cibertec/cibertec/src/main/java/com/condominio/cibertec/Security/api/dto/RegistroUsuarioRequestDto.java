@@ -52,6 +52,9 @@ public record RegistroUsuarioRequestDto(
                 regexp = "^$|^\\d{6,20}$",
                 message = "El teléfono debe contener solo números"
         )
-        String telefono
+        String telefono,
+
+        @NotBlank(message = "El rol es obligatorio")
+        String rol
 ) {
 }

@@ -27,13 +27,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Usuario usuario = usuarioRepository
                 .findByCorreoIgnoreCase(correoNormalizado)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "Usuario o contraseña incorrectos"
-                ));
+                .orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                "Usuario o contraseña incorrectos"
+                        )
+                );
 
-        String authority = "ROLE_" + usuario.getRol().getNombreRol();
+        String authority =
+                "ROLE_" + usuario.getRol().getNombreRol();
 
-        boolean activo = Boolean.TRUE.equals(usuario.getEstado());
+        boolean activo =
+                Boolean.TRUE.equals(usuario.getEstado());
 
         return User.builder()
                 .username(usuario.getCorreo())
